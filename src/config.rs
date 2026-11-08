@@ -49,9 +49,9 @@ impl FeesConfig {
         submit_interval_secs: Option<&str>,
     ) -> anyhow::Result<()> {
         if let Some(text) = max_height_delta {
-            self.max_height_delta = text.parse().map_err(|_| {
-                anyhow::anyhow!("max_height_delta must be an integer, got {text}")
-            })?;
+            self.max_height_delta = text
+                .parse()
+                .map_err(|_| anyhow::anyhow!("max_height_delta must be an integer, got {text}"))?;
         }
         if let Some(text) = request_timeout_ms {
             self.request_timeout_ms = text.parse().map_err(|_| {

@@ -4,20 +4,15 @@ mod blend;
 mod config;
 mod lnzap;
 
-pub use blend::{plan, targets_to_ask, FeeSource, Planned, NATIVE_TARGETS_WHEN_NO_UPSTREAM};
+pub use blend::{FeeSource, NATIVE_TARGETS_WHEN_NO_UPSTREAM, Planned, plan, targets_to_ask};
 pub use config::FeesConfig;
-pub use lnzap::{blend_lnzap, LnzapEstimates, ProviderPoint};
+pub use lnzap::{LnzapEstimates, ProviderPoint, blend_lnzap};
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn point(
-        order: usize,
-        height: u64,
-        hash: &str,
-        fees: &[(u32, f64)],
-    ) -> ProviderPoint {
+    fn point(order: usize, height: u64, hash: &str, fees: &[(u32, f64)]) -> ProviderPoint {
         ProviderPoint {
             mempool: false,
             order,
@@ -72,15 +67,18 @@ mod tests {
             min_relay_sat_per_vb: relay,
             fees_sat_per_vb: fees.to_vec(),
         };
-        let below_min = blend_lnzap(&[one(&[(1, 3.0), (2, 2.0), (3, 1.0)], 1.0)], 1, 1.0, 2.0).unwrap();
+        let below_min =
+            blend_lnzap(&[one(&[(1, 3.0), (2, 2.0), (3, 1.0)], 1.0)], 1, 1.0, 2.0).unwrap();
         assert_eq!(below_min.fees_sat_per_kvb, vec![(1, 3_000), (2, 2_000)]);
         assert_eq!(below_min.min_relay_sat_per_kvb, 2_000);
 
-        let below_relay = blend_lnzap(&[one(&[(1, 3.0), (2, 2.0), (3, 1.0)], 2.0)], 1, 1.0, 1.0).unwrap();
+        let below_relay =
+            blend_lnzap(&[one(&[(1, 3.0), (2, 2.0), (3, 1.0)], 2.0)], 1, 1.0, 1.0).unwrap();
         assert_eq!(below_relay.fees_sat_per_kvb, vec![(1, 3_000), (2, 2_000)]);
         assert_eq!(below_relay.min_relay_sat_per_kvb, 2_000);
 
-        let fallback = blend_lnzap(&[one(&[(1, 1.0), (2, 1.0), (3, 1.0)], 1.0)], 1, 1.0, 2.0).unwrap();
+        let fallback =
+            blend_lnzap(&[one(&[(1, 1.0), (2, 1.0), (3, 1.0)], 1.0)], 1, 1.0, 2.0).unwrap();
         assert_eq!(fallback.fees_sat_per_kvb, vec![(1, 2_000)]);
         assert_eq!(fallback.min_relay_sat_per_kvb, 2_000);
 
@@ -92,7 +90,8 @@ mod tests {
         assert_eq!(scaled.min_relay_sat_per_kvb, 1_520);
         assert_eq!(scaled.fees_sat_per_kvb, vec![(1, 5_000), (2, 3_750)]);
 
-        let relay_fallback = blend_lnzap(&[one(&[(1, 1.0), (2, 1.0)], 1.013)], 1, 1.0, 1.0).unwrap();
+        let relay_fallback =
+            blend_lnzap(&[one(&[(1, 1.0), (2, 1.0)], 1.013)], 1, 1.0, 1.0).unwrap();
         assert_eq!(relay_fallback.fees_sat_per_kvb, vec![(1, 1_013)]);
         assert_eq!(relay_fallback.min_relay_sat_per_kvb, 1_013);
 

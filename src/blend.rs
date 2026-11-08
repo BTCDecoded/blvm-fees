@@ -5,8 +5,7 @@ use std::collections::BTreeMap;
 
 /// `FeeEstimatorConfig::default` `lnd_targets` in `blvm-node/src/config/fees.rs`.
 /// Used when no upstream table names a target, so a native-only submit is not empty.
-pub const NATIVE_TARGETS_WHEN_NO_UPSTREAM: &[u32] =
-    &[1, 2, 3, 6, 12, 24, 48, 144, 504, 1008];
+pub const NATIVE_TARGETS_WHEN_NO_UPSTREAM: &[u32] = &[1, 2, 3, 6, 12, 24, 48, 144, 504, 1008];
 
 pub const MAX_QUOTES: usize = 64;
 
@@ -38,7 +37,10 @@ pub fn targets_to_ask(upstream_targets: &[u32]) -> Vec<u32> {
 
 /// `mergeFeeEstimates` on sat/kvB, after the priority order and the lag drop.
 pub fn plan(config: &FeesConfig, native: FeeSource, upstream: &[FeeSource]) -> Planned {
-    let healthy: Vec<&FeeSource> = upstream.iter().filter(|source| !source.quotes.is_empty()).collect();
+    let healthy: Vec<&FeeSource> = upstream
+        .iter()
+        .filter(|source| !source.quotes.is_empty())
+        .collect();
     let without_upstream = healthy.is_empty();
     let mut best = native.height;
     for source in &healthy {

@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use async_trait::async_trait;
-use blvm_fees::{plan, targets_to_ask, FeeSource, FeesConfig};
+use blvm_fees::{FeeSource, FeesConfig, plan, targets_to_ask};
 use blvm_node::module::inter_module::api::ModuleAPI;
 use blvm_node::module::ipc::protocol::{CliSpec, ExternalFeeTableWire, FeeEstimatorSpecWire};
 use blvm_node::module::traits::{EventType, ModuleError, NodeAPI};
@@ -133,10 +133,7 @@ async fn submit_cycle(node: &dyn NodeAPI, module_id: &str, config: &FeesConfig) 
     if planned.without_upstream {
         warn!("blvm-fees is running without upstream data");
     }
-    let tables = [
-        ("blend", planned.blend),
-        ("blend-min", planned.blend_min),
-    ];
+    let tables = [("blend", planned.blend), ("blend-min", planned.blend_min)];
     for (index, (name, quotes)) in tables.into_iter().enumerate() {
         if quotes.is_empty() {
             continue;
@@ -166,7 +163,10 @@ fn quotes_from(table: &Value) -> Vec<(u32, u64)> {
         let Some(pair) = row.as_array() else {
             continue;
         };
-        let (Some(target), Some(rate)) = (pair.first().and_then(Value::as_u64), pair.get(1).and_then(Value::as_u64)) else {
+        let (Some(target), Some(rate)) = (
+            pair.first().and_then(Value::as_u64),
+            pair.get(1).and_then(Value::as_u64),
+        ) else {
             continue;
         };
         if target == 0 || target > u64::from(u32::MAX) || rate == 0 {
@@ -199,8 +199,12 @@ async fn main() -> Result<()> {
                     .map_err(|err| ModuleError::Other(err.to_string()))?;
                 config
                     .apply_scalar_overrides(
-                        std::env::var("MODULE_CONFIG_MAX_HEIGHT_DELTA").ok().as_deref(),
-                        std::env::var("MODULE_CONFIG_REQUEST_TIMEOUT_MS").ok().as_deref(),
+                        std::env::var("MODULE_CONFIG_MAX_HEIGHT_DELTA")
+                            .ok()
+                            .as_deref(),
+                        std::env::var("MODULE_CONFIG_REQUEST_TIMEOUT_MS")
+                            .ok()
+                            .as_deref(),
                         std::env::var("MODULE_CONFIG_SUBMIT_INTERVAL_SECS")
                             .ok()
                             .as_deref(),
