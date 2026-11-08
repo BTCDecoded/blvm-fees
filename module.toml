@@ -1,0 +1,27 @@
+name = "blvm-fees"
+version = "0.1.0"
+description = "Publishes blend and blend-min from the native fee table and blvm.upstream.v1."
+author = "Bitcoin Commons Contributors"
+entry_point = "blvm-fees"
+
+capabilities = [
+    "subscribe_events",
+    "discover_modules",
+    "call_module",
+    "read_mempool",
+    "write_fee_estimates",
+]
+
+requires_apis = ["blvm.upstream.v1"]
+
+[[fee_estimators]]
+name = "blend"
+description = "LN-Zap mergeFeeEstimates"
+modes = ["conservative", "economical"]
+default_merge = "replace"
+
+[[fee_estimators]]
+name = "blend-min"
+description = "Per-target minimum, then a prefix-min"
+modes = ["conservative", "economical"]
+default_merge = "replace"
